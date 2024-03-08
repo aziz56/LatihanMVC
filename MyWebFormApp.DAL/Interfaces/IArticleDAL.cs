@@ -6,6 +6,7 @@ namespace MyWebFormApp.DAL.Interfaces
     public interface IArticleDAL : ICrud<Article>
     {
         IEnumerable<Article> GetArticleWithCategory();
+        //aaa
         IEnumerable<Article> GetArticleByCategory(int categoryId);
         int InsertWithIdentity(Article article);
 
