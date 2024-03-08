@@ -17,6 +17,60 @@ namespace MyWebFormApp.DAL
             //return @"Data Source=ACTUAL;Initial Catalog=LatihanDb;Integrated Security=True;TrustServerCertificate=True";
             //return ConfigurationManager.ConnectionStrings["MyDbConnectionString"].ConnectionString;
         }
+        public int GetCountArticleByCategory(int categoryId, string search)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                var strSql = @"SELECT COUNT(*)
+                    FROM Articles A
+                    INNER JOIN Categories C ON A.CategoryID = C.CategoryID
+                    WHERE A.CategoryID = @CategoryID
+                      AND (A.Title LIKE @Search OR C.CategoryName LIKE @Search)";
+
+                var param = new { CategoryID = categoryId, Search = $"%{search}%" };
+
+                var result = Convert.ToInt32(conn.ExecuteScalar(strSql, param));
+
+                return result;
+            }
+        }
+        public int GetCountArticle(string name)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                var strSql = @"select count(*) from Articles 
+                               where Title like @Title";
+                var param = new { Title = $"%{name}%" };
+                var result = Convert.ToInt32(conn.ExecuteScalar(strSql, param));
+                return result;
+            }
+        }
+        public IEnumerable<Article> GetWithPaging(int pageNumber, int pageSize, string name)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                var strSql = @"SELECT A.*, C.*
+                       FROM Articles A
+                       INNER JOIN Categories C ON A.CategoryID = C.CategoryID
+                       WHERE A.Title LIKE @Title
+                       ORDER BY A.ArticleID
+                       OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                var param = new { Title = $"%{name}%", Offset = (pageNumber - 1) * pageSize, PageSize = pageSize };
+                var results = conn.Query<Article, Category, Article>(
+                    strSql,
+                    (article, category) =>
+                    {
+                        article.Category = category;
+                        return article;
+                    },
+                    param,
+                    splitOn: "CategoryID"
+                );
+
+                return results;
+            }
+        }
 
         public void Delete(int id)
         {

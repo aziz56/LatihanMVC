@@ -15,6 +15,55 @@ namespace MyWebFormApp.BLL
         {
             _articleDAL = new ArticleDAL();
         }
+        public int GetCountArticleByCategory(int categoryId, string search)
+        {
+            try
+            {
+                return _articleDAL.GetCountArticleByCategory(categoryId, search);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public int GetCountArticle(string name)
+        {
+            return _articleDAL.GetCountArticle(name);
+        }
+        public IEnumerable<ArticleDTO> GetArticleByCategoryPaging(int categoryId, int pageNumber, int pageSize, string search)
+        {
+            List<ArticleDTO> listArticleDTO = new List<ArticleDTO>();
+            try
+            {
+                var articles = _articleDAL.GetArticleByCategoryPaging(categoryId, pageNumber, pageSize, search);
+
+                foreach (var article in articles)
+                {
+                    listArticleDTO.Add(new ArticleDTO
+                    {
+                        ArticleID = article.ArticleID,
+                        Title = article.Title,
+                        Details = article.Details,
+                        Pic = article.Pic,
+                        PublishDate = article.PublishDate,
+                        CategoryID = article.CategoryID,
+                        CategoryName = article.Category.CategoryName,
+                        // Category = new CategoryDTO
+                        // {
+                        //     CategoryID = article.Category.CategoryID,
+                        //     CategoryName = article.Category.CategoryName
+                        // },
+
+                    });
+                }
+                return listArticleDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
 
         public void Delete(int id)
         {
@@ -62,23 +111,24 @@ namespace MyWebFormApp.BLL
         //{
         //    return _articleDAL.GetCountArticles();
         //}
-        public IEnumerable<Article> GetWithPaging(int categoryId, int pageNumber, int pageSize)
+        public IEnumerable<ArticleDTO> GetWithPaging(int pageNumber, int pageSize, string name)
         {
-            if (categoryId <= 0)
+            List<ArticleDTO> listArticleDTO = new List<ArticleDTO>();
+            var articles = _articleDAL.GetWithPaging(pageNumber, pageSize, name);
+            foreach (var article in articles)
             {
-                throw new ArgumentException("CategoryID is required");
+                listArticleDTO.Add(new ArticleDTO
+                {
+                    ArticleID = article.ArticleID,
+                    Title = article.Title,
+                    Details = article.Details,
+                    Pic = article.Pic,
+                    PublishDate = article.PublishDate,
+                    CategoryID = article.CategoryID,
+                    CategoryName = article.Category.CategoryName,
+                });
             }
-            if (pageNumber <= 0)
-            {
-                throw new ArgumentException("PageNumber is required");
-            }
-            if (pageSize <= 0)
-            {
-                throw new ArgumentException("PageSize is required");
-            }
-
-
-            return _articleDAL.GetWithPaging(categoryId, pageNumber, pageSize);
+            return listArticleDTO;
         }
 
         public ArticleDTO GetArticleById(int id)
@@ -126,6 +176,7 @@ namespace MyWebFormApp.BLL
             }
             return articles;
         }
+
 
         public void Insert(ArticleCreateDTO articleDto)
         {

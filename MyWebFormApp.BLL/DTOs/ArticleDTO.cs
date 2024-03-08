@@ -5,6 +5,7 @@ namespace MyWebFormApp.BLL.DTOs
     public class ArticleDTO
     {
         public int ArticleID { get; set; }
+        public string CategoryName { get; set; }
         public int CategoryID { get; set; }
         public string Title { get; set; }
         public string Details { get; set; }

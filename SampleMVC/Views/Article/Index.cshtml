@@ -1,4 +1,11 @@
 ﻿@model IEnumerable<MyWebFormApp.BLL.DTOs.ArticleDTO>
+@{
+    int pageNumber = 1;
+    if (ViewData["pageNumber"] != null)
+    {
+        pageNumber = Convert.ToInt32(ViewData["pageNumber"]);
+    }
+}
 
 <div class="row">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -21,6 +28,18 @@
                         &nbsp;
                         <input type="submit" class="btn btn-primary btn-sm" value="Search" />
                     </p>
+                </form>
+                <form asp-action="Index" method="get" class="form-inline mb-3">
+                    <select name="categoryId" class="form-control">
+                        <option value="" s>All Categories</option>
+                        @foreach (var category in ViewBag.Categories)
+                        {
+                            <option value="@category.CategoryID">@category.CategoryName</option>
+                        }
+                    </select>
+                    <input type="text" id="search" class="form-control" name="search" value="@ViewData["search"]"
+                           placeholder="search article title" />
+                    <input type="submit" class="btn btn-primary ml-3" value="Search" />
                 </form>
 
                 <a asp-action="Create" class="btn btn-success btn-sm">Create New Article</a><br /><br />
